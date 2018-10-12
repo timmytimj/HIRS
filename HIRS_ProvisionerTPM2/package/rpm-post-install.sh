@@ -1,5 +1,7 @@
 HIRS_SITE_CONFIG="/etc/hirs/hirs-site.config"
 
+sudo source /opt/hirs/install-tpm2-dependencies.sh
+sudo rm -rf /opt/hirs
 sudo mkdir -p /var/log/hirs/provisioner
 sudo ln /usr/local/lib/libcurl.so /usr/lib64/libcurl.so
 sudo ln -s -f /usr/local/bin/hirs-provisioner-tpm2 /usr/sbin/hirs-provisioner-tpm2
