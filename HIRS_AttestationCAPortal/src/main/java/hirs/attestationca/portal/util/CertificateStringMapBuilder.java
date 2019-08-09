@@ -73,7 +73,7 @@ public final class CertificateStringMapBuilder {
             }
 
             data.put("authKeyId", certificate.getAuthKeyId());
-            data.put("crlPoints", certificate.getCrlPoints());
+            data.put("crlPoints", certificate.getCrlPoints());  // TDM need to check if it appears
             data.put("signatureAlgorithm", certificate.getSignatureAlgorithm());
             if (certificate.getEncodedPublicKey() != null) {
                 data.put("encodedPublicKey",
@@ -427,8 +427,22 @@ public final class CertificateStringMapBuilder {
 
             // add endorsement credential ID if not null
             if (certificate.getEndorsementCredential() != null) {
-                data.put("endorsementID",
-                        certificate.getEndorsementCredential().getId().toString());
+                EndorsementCredential ek = certificate.getEndorsementCredential();
+                data.put("endorsementID", ek.getId().toString());
+                // Add hashmap with TPM information if available
+                if (ek.getTpmSpecification() != null) {
+                    data.putAll(
+                            convertStringToHash(ek.getTpmSpecification().toString()));
+                }
+                if (ek.getTpmSecurityAssertions() != null) {
+                    data.putAll(
+                            convertStringToHash(ek.getTpmSecurityAssertions().toString()));
+                }
+
+                data.put("policyReference", ek.getPolicyReference());
+                data.put("manufacturer", ek.getManufacturer());
+                data.put("model", ek.getModel());
+                data.put("version", ek.getVersion());
             }
             // add platform credential IDs if not empty
             if (!certificate.getPlatformCredentials().isEmpty()) {
