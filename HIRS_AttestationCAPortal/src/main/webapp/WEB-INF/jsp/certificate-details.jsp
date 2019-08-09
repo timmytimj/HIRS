@@ -1,11 +1,11 @@
 <%@ page contentType="text/html"%>
-<%@ page pageEncoding="UTF-8"%>*/<%-- JSP TAGS
+<%@ page pageEncoding="UTF-8"%><%-- JSP TAGS --%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@taglib prefix="fn" uri = "http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="my" tagdir="/WEB-INF/tags"%>
-<%@taglib prefix="fn" uri = "http://java.sun.com/jsp/jstl/functions"%>--%>/**comment**CONTENT
+<%@taglib prefix="fn" uri = "http://java.sun.com/jsp/jstl/functions"%><%--CONTENT--%>
 <my:page>
     <jsp:attribute name="style">
         <link type="text/css" rel="stylesheet" href="${common}/certificate_details.css"/>
@@ -99,9 +99,7 @@
             <c:if test="${not empty initialData.subject}">
                 <div class="row">
                     <div class="col-md-1 col-md-offset-1"><span class="colHeader">Subject</span></div>
-                    <div id="subject"
-<%!
-class="col col-md-8">${initialData.subject}</div>
+                    <div id="subject" class="col col-md-8">${initialData.subject}</div>
                 </div>
             </c:if>
             <div class="row">
@@ -281,7 +279,6 @@ class="col col-md-8">${initialData.subject}</div>
                             </div>
                         </c:when>
                     </c:choose>
-                    <!-- Need to test this -->
                     <div class="row">
                         <div class="col-md-1 col-md-offset-1">
                             <span class="colHeader">
@@ -775,6 +772,33 @@ class="col col-md-8">${initialData.subject}</div>
                 </c:when>
                 <c:when test="${param.type=='issued'}">
                     <div class="row">
+                        <div class="col-md-1 col-md-offset-1"><span class="colHeader">System Information</span></div>
+                        <div id="subjectAltName" class="col col-md-8">
+                            <div id="manufacturer">Manufacturer:&nbsp;<span>${initialData.manufacturer}</span></div>
+                            <div id="model">Model:&nbsp;<span>${initialData.model}</span></div>
+                            <div id="version">Version:&nbsp;<span>${initialData.version}</span></div>
+                        </div>  
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1 col-md-offset-1"><span class="colHeader">Policy Reference</span></div>
+                        <div id="policyReference" class="col col-md-8 vertical">
+                            <c:choose>
+                                <c:when test="${not empty initialData.policyReference}">
+                                    ${initialData.policyReference}
+                                </c:when>
+                                <c:otherwise>
+                                    Not Specified
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                    </div>
+                    <c:if test="${initialData.crlPoints}">
+                        <div class="row">
+                            <div class="col-md-1 col-md-offset-1"><span class="colHeader">Revocation Locator</span></div>
+                            <div id="revocationLocator" class="col col-md-8"><a href="${initialData.crlPoints}">${initialData.crlPoints}</div>
+                        </div>
+                    </c:if>
+                    <div class="row">
                         <div class="col-md-1 col-md-offset-1"><span class="colHeader">Endorsement Credential</span></div>
                         <div id="endorsementID" class="col col-md-8">
                             <c:if test="${not empty initialData.endorsementID}">
@@ -794,6 +818,42 @@ class="col col-md-8">${initialData.subject}</div>
                                     </a>
                                 </c:forTokens>
                             </c:if>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1 col-md-offset-1">
+                            <span class="colHeader">
+                                <a role="button" data-toggle="collapse" class="collapsed" href="#tpmSpecificationInner"
+                                   aria-expanded="true" data-placement="top" aria-controls="tpmSpecificationInner">
+                                    TPM Specification
+                                </a>
+                            </span>
+                        </div>
+                        <div id="tpmSpecification" class="col col-md-8">
+                            <div id="tpmSpecificationInner" class="panel-body collapse" role="tabpanel" aria-expanded="false">
+                                <div>Family:&nbsp;<span>${initialData.TPMSpecificationFamily}</span></div>
+                                <div>Level:&nbsp;<span>${initialData.TPMSpecificationLevel}</span></div>
+                                <div>Revision:&nbsp;<span>${initialData.TPMSpecificationRevision}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1 col-md-offset-1">
+                            <span class="colHeader">
+                                <a role="button" data-toggle="collapse" class="collapsed" href="#tpmSecurityAssertionInner"
+                                   aria-expanded="true" data-placement="top" aria-controls="tpmSecurityAssertionInner">
+                                    TPM Security Assertion
+                                </a>
+                            </span>
+                        </div>
+                        <div id="tpmSecurityAssertion" class="col col-md-8">
+                            <div id="tpmSecurityAssertionInner" class="panel-body collapse" role="tabpanel" aria-expanded="false">
+                                <div>Version:&nbsp;<span>${initialData.TPMSecurityAssertionsVersion}</span></div>
+                                <div>Field Upgradeable:&nbsp;<span>${initialData.TPMSecurityAssertionsFieldUpgradeable}</span></div>
+                                <div>ek Generation Type:&nbsp;<span>${initialData.TPMSecurityAssertionsEkGenType}</span></div>
+                                <div>ek Generation Location:&nbsp;<span>${initialData.TPMSecurityAssertionsEkGenLoc}</span></div>
+                                <div>ek Certificate Generation Location:&nbsp;<span>${initialData.TPMSecurityAssertionsEkCertGenLoc}</span></div>
+                            </div>
                         </div>
                     </div>
                 </c:when>

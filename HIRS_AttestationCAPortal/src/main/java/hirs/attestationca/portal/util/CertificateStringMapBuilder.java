@@ -73,7 +73,7 @@ public final class CertificateStringMapBuilder {
             }
 
             data.put("authKeyId", certificate.getAuthKeyId());
-            data.put("crlPoints", certificate.getCrlPoints());  // TDM need to check if it appears
+            data.put("crlPoints", certificate.getCrlPoints());
             data.put("signatureAlgorithm", certificate.getSignatureAlgorithm());
             if (certificate.getEncodedPublicKey() != null) {
                 data.put("encodedPublicKey",
@@ -443,6 +443,7 @@ public final class CertificateStringMapBuilder {
                 data.put("manufacturer", ek.getManufacturer());
                 data.put("model", ek.getModel());
                 data.put("version", ek.getVersion());
+                data.put("crlPoints", ek.getCrlPoints());
             }
             // add platform credential IDs if not empty
             if (!certificate.getPlatformCredentials().isEmpty()) {
