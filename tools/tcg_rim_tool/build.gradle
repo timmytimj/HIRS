@@ -7,7 +7,6 @@ repositories {
 
 dependencies {
 	testCompile 'org.testng:testng:6.8.8'
-	compile 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
 }
 
 jar {

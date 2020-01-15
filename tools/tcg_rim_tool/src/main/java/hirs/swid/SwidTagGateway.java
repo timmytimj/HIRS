@@ -17,18 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ByteArrayInputStream;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-
-import java.nio.charset.StandardCharsets;
-
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 import java.math.BigInteger;
 
@@ -51,13 +39,15 @@ import hirs.swid.xjc.SoftwareMeta;
 import hirs.swid.xjc.TransformType;
 import hirs.swid.xjc.TransformsType;
 
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonObject.Member;
-import com.eclipsesource.json.Location;
-import com.eclipsesource.json.ParseException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
-
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * This class provides interaction with the SWID Tag schema as defined in
@@ -118,7 +108,6 @@ public class SwidTagGateway {
 
     private final ObjectFactory objectFactory = new ObjectFactory();
     private final File generatedFile = new File("generated_swidTag.swidtag");
-    private final File configFile = new File("rim_fields.json");
     private QName hashValue = null;
     
     private static final String ENTITY = "Entity";
@@ -202,24 +191,12 @@ public class SwidTagGateway {
     }
 
     /**
-     * This method generates a base RIM from the values in a JSON file.
+     * This method generates a primary SWID tag from the values in
+     * resources/swidExamples.properties.
      *
      * @param outputFile
      */
     public void generateSwidTag(final File outputFile) {
-        try {
-            BufferedReader jsonIn = new BufferedReader(new FileReader(configFile));
-            JsonObject configProperties = (JsonObject) Json.parse(jsonIn);
-            for (String name : configProperties.names()) {
-                System.out.println(name + ": " + configProperties.get(name).asString());
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("File does not exist or cannot be read: " + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("Error in file reader: " + e.getMessage());
-        } catch (ParseException e) {
-            System.out.println("Invalid JSON detected at " + e.getLocation().toString());
-        }
         Properties properties = new Properties();
         InputStream is = null;
         try {
