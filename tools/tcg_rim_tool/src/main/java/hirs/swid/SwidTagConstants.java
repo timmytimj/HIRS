@@ -12,7 +12,13 @@ import javax.xml.namespace.QName;
  */
 public class SwidTagConstants {
 
-    public static final String SCHEMA_STATEMENT = "ISO/IEC 19770-2:2015 Schema (XSD 1.0) "
+	
+	public static final String TOOL_VERSION = "0.1";
+	public static final String CONFIG_PATH_DEFAULT = "/etc/hirs/rim_fields.json";
+	public static final String INDENT = "  ";
+	public static final String INDENT2 = "     ";
+	public static final String INDENT3 = "         ";
+	public static final String SCHEMA_STATEMENT = "ISO/IEC 19770-2:2015 Schema (XSD 1.0) "
             + "- September 2015, see http://standards.iso.org/iso/19770/-2/2015/schema.xsd";
     public static final String SCHEMA_PACKAGE = "hirs.swid.xjc";
     public static final String SCHEMA_LANGUAGE = XMLConstants.W3C_XML_SCHEMA_NS_URI;

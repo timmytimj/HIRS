@@ -44,7 +44,7 @@ public class TestSwidTagGateway {
 	@Test
 	public void testGenerateSwidTagFile() {
 		outputFile = "testGenerateSwidTagFile.swidtag";
-		gateway.generateSwidTag(new File(outputFile));
+		gateway.generateSwidTag(outputFile,"");
 		expectedFile = (InputStream) TestSwidTagGateway.class.getClassLoader().getResourceAsStream(TEST_BLANK_SWIDTAG);
 		Assert.assertTrue(compareFileBytesToExpectedFile(outputFile));
 	}

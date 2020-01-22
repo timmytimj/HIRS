@@ -13,15 +13,17 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) {
+    	System.out.println("tcg_rim_tool version "+ SwidTagConstants.TOOL_VERSION);
         Commander commander = new Commander(args);
-
         if (commander.hasArguments()) {
             // we have arguments to work with
             if (commander.create()) {
                 // parsing the arguments detected a create parameter (-c)
-                (new SwidTagGateway()).generateSwidTag(commander.getCreateInFile(),
-                        commander.getCreateOutFile(), commander.getHashAlg());
-            } else if (commander.validate()) {
+                //(new SwidTagGateway()).generateSwidTag(commander.getCreateInFile(),
+                //        commander.getCreateOutFile(), commander.getHashAlg());
+            	(new SwidTagGateway()).generateSwidTag(commander.getCreateOutFile(),commander.getConfigPath());
+            } else if (commander.validate()) 
+            {
                 // parsing the arguments detected a validation parameter (-v)
                 try {
                     (new SwidTagGateway()).validateSwidTag(commander.getValidateFile());
@@ -40,5 +42,6 @@ public class Main {
             // therefore generate a mock tag file
             (new SwidTagGateway()).generateSwidTag();
         }
+        System.out.println("tcg_rim_tool processing complete");
     }
 }

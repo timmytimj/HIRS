@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 
+import hirs.swid.SwidTagConstants;
+
 /**
  * Commander is a class that handles the command line arguments for the SWID
  * Tags gateway.
@@ -22,17 +24,20 @@ public class Commander {
     private static final String IN_STRING = "in";
     private static final String OUT_STRING = "out";
     private static final String HASH_STRING = "hash";
+    private static final String PATH_STRING = "path";
 
     private boolean hasArguments = false;
     private boolean validate = false;
     private boolean create = false;
     private boolean parse = false;
+    private boolean useConfigPath = false;
 
     private String validateFile;
     private String createInFile;
     private String createOutFile;
     private String parseFile;
     private String hashAlg = null;
+    private String configPath = "";
 
     /**
      * The main constructor for the Commander class
@@ -123,6 +128,11 @@ public class Commander {
                 	parse = true;
                 	parseFile = args[++i];
                 	break;
+                case FULL_COMMAND_PREFIX + PATH_STRING:
+                case COMMAND_PREFIX + "x":
+                	useConfigPath = true;
+                	configPath  = args[++i];
+                	break;
                 case FULL_COMMAND_PREFIX + HELP_STRING:
                 case COMMAND_PREFIX + "h":
                 default:
@@ -137,6 +147,15 @@ public class Commander {
         }
     }
 
+    /**
+     * Getter for the config path set using the -x option
+     *
+     * @return
+     */
+    public final String getConfigPath() {
+        return configPath;
+    }
+    
     /**
      * Getter for the input validate file associated with the validate flag
      *
@@ -211,6 +230,15 @@ public class Commander {
     }
     
     /**
+     * Getter for the use a config path flag
+     * 
+     * @return
+     */
+    public final boolean useConfigPath() {
+    	return useConfigPath;
+    }
+    
+    /**
      * Getter for the file to be parsed by the parse command flag
      * 
      * @return
@@ -246,6 +274,8 @@ public class Commander {
                 + "   \t\t\tcreate an example tag file\n");
         sb.append("   -p, --parse\t\tParse a swidtag's payload\n"
         		+ "   \t<file>\t\tInput swidtag\n");
+        sb.append("   -x, --path\t\tUse specified config file\n"
+        		+ "   \t<file>\t\tconfig file path and name\n");
         sb.append("   -v, --verify\t\tTakes the provided input file and\n"
                 + "   \t\t\tvalidates it against the schema at\n"
                 + "   \t\t\thttp://standards.iso.org/iso/19770/-2/2015/schema.xsd\n");
@@ -262,10 +292,11 @@ public class Commander {
      */
     public static boolean isValidPath(String filepath) {
         try {
-            System.out.println("Checking for a valid creation path...");
+            System.out.println(SwidTagConstants.INDENT+"Checking for a valid creation path...");
             File file = new File(filepath);
             file.createNewFile();            
         } catch (IOException | InvalidPathException | NullPointerException ex) {
+        	System.out.println(SwidTagConstants.INDENT+" Error Reading or accessing file: "+filepath);
             return false;
         }
         return true;

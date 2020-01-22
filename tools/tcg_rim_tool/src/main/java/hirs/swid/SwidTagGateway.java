@@ -80,9 +80,11 @@ public class SwidTagGateway {
     private static final QName _SHA256_HASH = new QName(
             "http://www.w3.org/2001/04/xmlenc#sha256", "hash", "SHA256");
 
+    SwidTagConstants stc = new SwidTagConstants();
+    
     private final ObjectFactory objectFactory = new ObjectFactory();
     private final File generatedFile = new File("generated_swidTag.swidtag");
-    private final Path configFile = Paths.get("/etc/hirs/rim_fields.json");
+    private Path configFile = Paths.get(SwidTagConstants.CONFIG_PATH_DEFAULT);
     private QName hashValue = null;
     
     private static final String ENTITY = "Entity";
@@ -92,7 +94,7 @@ public class SwidTagGateway {
      * default generator method that has no parameters
      */
     public void generateSwidTag() {
-        generateSwidTag(generatedFile);
+        //generateSwidTag(generatedFile);
     }
 
     /**
@@ -151,7 +153,7 @@ public class SwidTagGateway {
                 JAXBElement<SoftwareIdentity> jaxbe = objectFactory.createSoftwareIdentity(swidTag);
                 writeSwidTagFile(jaxbe, output);
             } catch (IOException e) {
-                System.out.println("Error reading properties file: ");
+                System.out.println(stc.INDENT+"Error reading properties file: ");
                 e.printStackTrace();
             } finally {
                 if (is != null) {
@@ -170,14 +172,28 @@ public class SwidTagGateway {
      *
      * @param outputFile
      */
-    public void generateSwidTag(final File outputFile) {
+    public void generateSwidTag(final String outputFilePath, String configPath) {
+    	
+    	File outputFile = new File(outputFilePath);
+    	
+    	if(configPath.isEmpty()==false) {configFile=Paths.get(configPath);
+    	} else {
+    		configPath=SwidTagConstants.CONFIG_PATH_DEFAULT;
+    	}
+  
+    	System.out.println(stc.INDENT+"Creating an XML encoded Base RIM file");
+    	System.out.println(stc.INDENT2+"Using config file"+configPath);
+    	System.out.println(stc.INDENT3+"and writing the Base RIM to "+outputFilePath);		
         SoftwareIdentity swidTag = null;
         try {
+        	System.out.println(stc.INDENT+"Processing config file ... ");
             BufferedReader jsonIn = Files.newBufferedReader(configFile, StandardCharsets.UTF_8);
             JsonObject configProperties = Json.parse(jsonIn).asObject();
             //SoftwareIdentity
             swidTag = createSwidTag(configProperties.get(SwidTagConstants.SOFTWARE_IDENTITY).asObject());
             //Entity
+            System.out.println(stc.INDENT2+"Creating Software Identity and Entity Elements ... ");
+            
             JAXBElement<Entity> entity = objectFactory.createSoftwareIdentityEntity(
                     createEntity(configProperties.get(SwidTagConstants.ENTITY).asObject()));
             swidTag.getEntityOrEvidenceOrLink().add(entity);
@@ -190,6 +206,8 @@ public class SwidTagGateway {
                     createSoftwareMeta(configProperties.get(SwidTagConstants.META).asObject()));
             swidTag.getEntityOrEvidenceOrLink().add(meta);
             //File
+            System.out.println(stc.INDENT2+"Creating Payload Elements ...");
+            
             hirs.swid.xjc.File file = createFile(
                     configProperties.get(SwidTagConstants.PAYLOAD).asObject()
                                     .get(SwidTagConstants.DIRECTORY).asObject()
@@ -208,13 +226,13 @@ public class SwidTagGateway {
             swidTag.getEntityOrEvidenceOrLink().add(jaxbPayload);
 
         } catch (FileNotFoundException e) {
-            System.out.println("File does not exist or cannot be read: " + e.getMessage());
+            System.out.println(stc.INDENT+"File does not exist or cannot be read: " + e.getMessage());
         } catch (IOException e) {
-            System.out.println("Error in file reader: " + e.getMessage());
+            System.out.println(stc.INDENT+"Error in file reader: " + e.getMessage());
         } catch (ParseException e) {
-            System.out.println("Invalid JSON detected at " + e.getLocation().toString());
+            System.out.println(stc.INDENT+"Invalid JSON detected at " + e.getLocation().toString());
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println(stc.INDENT+e.getMessage());
         }
         JAXBElement<SoftwareIdentity> jaxbe = objectFactory.createSoftwareIdentity(swidTag);
         writeSwidTagFile(jaxbe, outputFile);
@@ -233,8 +251,8 @@ public class SwidTagGateway {
         String output = String.format("name: %s;\ntagId:  %s\n%s",
                 swidTag.getName(), swidTag.getTagId(),
                 SwidTagConstants.SCHEMA_STATEMENT);
-        System.out.println("SWID Tag found: ");
-        System.out.println(output);
+        System.out.println(stc.INDENT+"SWID Tag found: ");
+        System.out.println(stc.INDENT+output);
         return true;
     }
 
@@ -246,6 +264,7 @@ public class SwidTagGateway {
      */
     public void writeSwidTagFile(JAXBElement<SoftwareIdentity> jaxbe, File outputFile) {
         JAXBContext jaxbContext;
+        System.out.println(stc.INDENT+"Writing RIM to file: "+outputFile.getPath());
         try {
             jaxbContext = JAXBContext.newInstance(SwidTagConstants.SCHEMA_PACKAGE);
             Marshaller marshaller = jaxbContext.createMarshaller();
