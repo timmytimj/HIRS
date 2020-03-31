@@ -2,9 +2,8 @@ package hirs.swid.utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
-import java.nio.file.Paths;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Commander is a class that handles the command line arguments for the SWID
@@ -38,9 +37,9 @@ public class Commander {
     private String hashAlg = null;
 
     /**
-     * The main constructor for the Commander class
+     * The main constructor for the Commander class.
      *
-     * @param args
+     * @param args command line injected data.
      */
     public Commander(final String[] args) {
         hasArguments = args.length > 0;
@@ -55,7 +54,7 @@ public class Commander {
             if (hashAlg == null) {
                 hashAlg = "256";
             }
-            
+
             if (!getCreateOutFile().isEmpty() && !isValidPath(getCreateOutFile())) {
                 printHelp(String.format("Invalid file path %s!", getCreateOutFile()));
             }
@@ -63,7 +62,7 @@ public class Commander {
     }
 
     /**
-     * The default blank constructor
+     * The default blank constructor.
      */
     public Commander() {
 
@@ -73,7 +72,7 @@ public class Commander {
      * This method is called if an empty Commander was created, and later gets
      * args. Will be used by the main constructor.
      *
-     * @param args
+     * @param args command line injected data.
      */
     public final void parseArguments(final String[] args) {
         String tempValue;
@@ -85,14 +84,16 @@ public class Commander {
                 case FULL_COMMAND_PREFIX + CREATE_STRING:
                 case COMMAND_PREFIX + "c":
                     create = true;
-                    if (i+1 < args.length && !args[i+1].substring(0,1).equals(COMMAND_PREFIX)) {
+                    if (i + 1 < args.length
+                            && !args[i + 1].substring(0, 1).equals(COMMAND_PREFIX)) {
                         createOutFile = args[++i];
                     }
                     break;
                 case FULL_COMMAND_PREFIX + ATTRIBUTES_STRING:
                 case COMMAND_PREFIX + "a":
                     attributesGiven = true;
-                    if (i+1 < args.length && !args[i+1].substring(0,1).equals(COMMAND_PREFIX)) {
+                    if (i + 1 < args.length
+                            && !args[i + 1].substring(0, 1).equals(COMMAND_PREFIX)) {
                         attributesFile = args[++i];
                     }
                     break;
@@ -103,9 +104,9 @@ public class Commander {
                     break;
                 case FULL_COMMAND_PREFIX + PARSE_STRING:
                 case COMMAND_PREFIX + "p":
-                	parse = true;
-                	parseFile = args[++i];
-                	break;
+                    parse = true;
+                    parseFile = args[++i];
+                    break;
                 case FULL_COMMAND_PREFIX + SHOW_CERT_STRING:
                     showCert = true;
                     break;
@@ -118,18 +119,18 @@ public class Commander {
     }
 
     /**
-     * Getter for the input validate file associated with the validate flag
+     * Getter for the input validate file associated with the validate flag.
      *
-     * @return
+     * @return string of the associated file.
      */
     public final String getValidateFile() {
         return validateFile;
     }
 
     /**
-     * Getter for the output file for the create flag
+     * Getter for the output file for the create flag.
      *
-     * @return
+     * @return string path of the outfile.
      */
     public final String getCreateOutFile() {
         return createOutFile;
@@ -139,7 +140,7 @@ public class Commander {
      * Getter for the property that indicates if something was given at the
      * commandline.
      *
-     * @return
+     * @return flag for the present of arguments
      */
     public final boolean hasArguments() {
         return hasArguments;
@@ -148,7 +149,7 @@ public class Commander {
     /**
      * Getter for the validate command flag.
      *
-     * @return
+     * @return flag indicating to validate file.
      */
     public final boolean validate() {
         return validate;
@@ -157,7 +158,7 @@ public class Commander {
     /**
      * Getter for the create command flag.
      *
-     * @return
+     * @return flag for creating a swid tag.
      */
     public final boolean create() {
         return create;
@@ -165,66 +166,71 @@ public class Commander {
 
     /**
      * Getter for the hash algorithm to be used for hash functions.
-     * 
-     * @return 
+     *
+     * @return string of the algorithm
      */
     public final String getHashAlg() {
         return hashAlg;
     }
-    
+
     /**
-     * Getter for the parse command flag
-     * 
-     * @return
+     * Getter for the parse command flag.
+     *
+     * @return flag to parse swid
      */
     public final boolean parse() {
-    	return parse;
-    }
-    
-    /**
-     * Getter for the file to be parsed by the parse command flag
-     * 
-     * @return
-     */
-    public final String getParseFile() {
-    	return parseFile;
+        return parse;
     }
 
     /**
-     * Getter for the attributes file given flag
-     * @return
+     * Getter for the file to be parsed by the parse command flag.
+     *
+     * @return string of path to parse
+     */
+    public final String getParseFile() {
+        return parseFile;
+    }
+
+    /**
+     * Getter for the attributes file given flag.
+     *
+     * @return flag for the attributes
      */
     public boolean isAttributesGiven() {
         return attributesGiven;
     }
 
     /**
-     * Getter for the file containing attribute key-value pairs
-     * @return
+     * Getter for the file containing attribute key-value pairs.
+     *
+     * @return string path of file containing attributes
      */
     public String getAttributesFile() {
         return attributesFile;
     }
 
     /**
-     * Getter for the keystore given flag
-     * @return
+     * Getter for the keystore given flag.
+     *
+     * @return flag for the presence of the keystore.
      */
     public boolean isKeystoreGiven() {
         return keystoreGiven;
     }
 
     /**
-     * Getter for the keystore used for digital signatures
-     * @return
+     * Getter for the keystore used for digital signatures.
+     *
+     * @return string of the path to the keystore.
      */
     public String getKeystore() {
         return keystore;
     }
 
     /**
-     * Getter for boolean to show certificate data or not
-     * @return
+     * Getter for boolean to show certificate data or not.
+     *
+     * @return flag to display the certificate
      */
     public boolean isShowCert() {
         return showCert;
@@ -241,11 +247,12 @@ public class Commander {
      * This method is used to inform the user of the allowed functionality of
      * the program.
      */
-    private void printHelp(String message) {
+    @SuppressFBWarnings("DM_EXIT")
+    private void printHelp(final String message) {
         StringBuilder sb = new StringBuilder();
 
         if (message != null && !message.isEmpty()) {
-            sb.append(String.format("ERROR: %s\n\n", message));
+            sb.append(String.format("ERROR: %s%n%n", message));
         }
         sb.append("Usage: HIRS_SwidTag\n");
         sb.append("   -c, --create <file>\t\tCreate a base rim and write to\n"
@@ -278,20 +285,22 @@ public class Commander {
         System.out.println(sb.toString());
         System.exit(1);
     }
-    
+
     /**
      * Checks that the file given to create a new swidtag is a valid path.
-     * @param filepath
-     * @return 
+     *
+     * @param filepath string of the location of the file.
+     * @return flag to indiate file exist
      */
-    public static boolean isValidPath(String filepath) {
+    public static boolean isValidPath(final String filepath) {
+        boolean result = false;
         try {
             System.out.println("Checking for a valid creation path...");
             File file = new File(filepath);
-            file.createNewFile();            
+            result = file.createNewFile();
         } catch (IOException | InvalidPathException | NullPointerException ex) {
-            return false;
+            result = false;
         }
-        return true;
+        return result;
     }
 }

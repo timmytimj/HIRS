@@ -6,8 +6,9 @@ import java.io.IOException;
 /*
  * Command-line application for generating and validating SWID tags.
  * Input arg: path to *.swidtag file
- * 
- * If an argument is given it will be validated against the schema at http://standards.iso.org/iso/19770/-2/2015/schema.xsd
+ *
+ * If an argument is given it will be validated against the schema
+ * at http://standards.iso.org/iso/19770/-2/2015/schema.xsd
  * If an argument is not given a SWID tag file will be generated.
  */
 public class Main {

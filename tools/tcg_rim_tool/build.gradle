@@ -1,5 +1,9 @@
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
 apply plugin: 'java'
 version = '1.0'
+
+ext.configDir = new File(projectDir, 'config')
 
 repositories {
 	mavenCentral()
@@ -7,7 +11,12 @@ repositories {
 
 dependencies {
 	compile libs.minimal_json
+
+	compileOnly libs.checkstyle
+	compileOnly libs.findbugs
 	testCompile libs.testng
+	testCompile libs.checkstyle
+	testCompile libs.findbugs
 }
 
 jar {
@@ -25,4 +34,23 @@ uploadArchives {
 			dirs "${buildDir}"
 		}
 	}
+}
+
+ext.checkstyleConfigDir = "$configDir/checkstyle"
+
+checkstyle {
+	toolVersion = '8.10.1'
+	configFile = checkstyleConfigFile
+	configProperties.put('basedir', checkstyleConfigDir)
+	ignoreFailures = false
+	showViolations = true
+}
+
+ext.findbugsConfigDir = "$configDir/findbugs"
+
+findbugs {
+	toolVersion = '3.0.0'
+	ignoreFailures = false
+	effort = 'max'
+	excludeFilter = new File(findbugsConfigDir, 'suppressions.xml')
 }
