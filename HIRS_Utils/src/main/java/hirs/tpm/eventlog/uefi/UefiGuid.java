@@ -1,20 +1,13 @@
 package hirs.tpm.eventlog.uefi;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.UUID;
 
 import com.eclipsesource.json.JsonObject;
 import hirs.utils.HexUtils;
 import hirs.utils.JsonUtils;
-import org.apache.commons.io.IOUtils;
 
 /**
  * Class to process GUID per the UEFI specification
@@ -33,7 +26,7 @@ public class UefiGuid {
 
     private static final Path JSON_PATH = FileSystems.getDefault().getPath("/opt",
             "hirs", "default-properties", "vendor-table.json");
-    private static JsonObject uefiVendorRef;
+    private JsonObject uefiVendorRef;
     /**
      * guid byte array.
      */
@@ -90,9 +83,10 @@ public class UefiGuid {
     }
 
     /**
-     * Returns a String that represents a specification name referenced by the EFI_CONFIGURATION_TABLE
-     * VendorGUID field.  For structure of EFI_CONFIGURATION_TABLE type, the UEFI specification
-     * has set of GUIDs published that represent standards that one can find further information on
+     * Returns a String that represents a specification name referenced by the
+     * EFI_CONFIGURATION_TABLE VendorGUID field.  For structure of
+     * EFI_CONFIGURATION_TABLE type, the UEFI specification has set of GUIDs
+     * published that represent standards that one can find further information on
      * the configuration table being referenced.
      * Refer to section 4.6 of UEFI spec v 2.8, page 101.
      *
@@ -103,10 +97,11 @@ public class UefiGuid {
     }
 
     /**
-     * Returns a String that represents a specification name referenced by the EFI_CONFIGURATION_TABLE
-     * VendorGUID field.  For structure of EFI_CONFIGURATION_TABLE type, the UEFI specification
-     * has set of GUIDs published that represent standards that one can find further information on
-     * the configuration table being referenced.
+     * Returns a String that represents a specification name referenced by the
+     * EFI_CONFIGURATION_TABLE VendorGUID field.  For structure of
+     * EFI_CONFIGURATION_TABLE type, the UEFI specification has set of GUIDs
+     * published that represent standards that one can find further
+     * information on the configuration table being referenced.
      * Refer to section 4.6 of UEFI spec v 2.8, page 101.
      *
      * @param lookupValue specific value to look up

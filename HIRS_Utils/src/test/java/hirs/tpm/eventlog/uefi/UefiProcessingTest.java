@@ -67,6 +67,7 @@ public class UefiProcessingTest {
      * @throws IOException              when processing the test fails.
      * @throws NoSuchAlgorithmException if non TCG Algorithm is encountered.
      * @throws CertificateException     if parsing issue for X509 cert is encountered.
+     * @throws URISyntaxException File location exception
      */
     @Test
     public final void testUefiVariables() throws IOException,
@@ -81,18 +82,21 @@ public class UefiProcessingTest {
         UefiGuid guid = uefiVariable.getEfiVarGuid();
         String varName = uefiVariable.getEfiVarName();
         JsonObject jsonObject = JsonUtils.getSpecificJsonObject(jsonPath, "VendorTable");
-        String guidStr = jsonObject.getString(guid.toStringNoLookup().toLowerCase(), "Unknown GUID reference");
+        String guidStr = jsonObject.getString(
+                guid.toStringNoLookup().toLowerCase(), "Unknown GUID reference");
         Assert.assertEquals(guidStr,
                 "EFI_Global_Variable");
         Assert.assertEquals(varName, "BootOrder");
 
-        uefiTxt = IOUtils.toString(this.getClass().getResourceAsStream(UEFI_VARIABLE_BOOT_SECURE_BOOT),
+        uefiTxt = IOUtils.toString(this.getClass()
+                        .getResourceAsStream(UEFI_VARIABLE_BOOT_SECURE_BOOT),
                 "UTF-8");
         uefiVariableBytes = HexUtils.hexStringToByteArray(uefiTxt);
         uefiVariable = new UefiVariable(uefiVariableBytes);
         guid = uefiVariable.getEfiVarGuid();
         varName = uefiVariable.getEfiVarName();
-        guidStr = jsonObject.getString(guid.toStringNoLookup().toLowerCase(), "Unknown GUID reference");
+        guidStr = jsonObject.getString(
+                guid.toStringNoLookup().toLowerCase(), "Unknown GUID reference");
         Assert.assertEquals(guidStr,
                 "EFI_Global_Variable");
         Assert.assertEquals(varName, "SecureBoot");
@@ -111,6 +115,7 @@ public class UefiProcessingTest {
      * @throws IOException              when processing the test fails.
      * @throws NoSuchAlgorithmException if non TCG Algorithm is encountered.
      * @throws CertificateException     if parsing issue for X509 cert is encountered.
+     * @throws URISyntaxException File location exception
      */
     @Test
     public final void testUefiPartiton() throws IOException,
@@ -126,7 +131,8 @@ public class UefiProcessingTest {
         UefiGuid gptTypeuid = gptPart.getPartitionTypeGUID();
         UefiGuid gptUniqueGuid = gptPart.getUniquePartitionGUID();
         JsonObject jsonObject = JsonUtils.getSpecificJsonObject(jsonPath, "VendorTable");
-        String guidStr = jsonObject.getString(gptTypeuid.toStringNoLookup().toLowerCase(), "Unknown GUID reference");
+        String guidStr = jsonObject.getString(
+                gptTypeuid.toStringNoLookup().toLowerCase(), "Unknown GUID reference");
         Assert.assertEquals(guidStr,
                 "EFI System Partition");
         Assert.assertEquals(gptUniqueGuid.toString(),
@@ -145,7 +151,8 @@ public class UefiProcessingTest {
     public final void testUefiFirmwareBlob() throws IOException,
             CertificateException, NoSuchAlgorithmException {
         LOGGER.debug("Testing the parsing of Uefi Firmware Blob");
-        String uefiTxt = IOUtils.toString(this.getClass().getResourceAsStream(UEFI_FW_BLOB), "UTF-8");
+        String uefiTxt = IOUtils.toString(this.getClass()
+                .getResourceAsStream(UEFI_FW_BLOB), "UTF-8");
         byte[] uefiFwBlobBytes = HexUtils.hexStringToByteArray(uefiTxt);
         UefiFirmware uefiFWBlob = new UefiFirmware(uefiFwBlobBytes);
         int fwAddress = uefiFWBlob.getPhysicalAddress();
@@ -158,6 +165,7 @@ public class UefiProcessingTest {
      * Tests the processing of a UEFI defined Device Path.
      *
      * @throws IOException when processing the test fails.
+     * @throws URISyntaxException File location exception
      */
     @Test
     public final void testUefiDevicePath() throws IOException, URISyntaxException {
@@ -167,7 +175,6 @@ public class UefiProcessingTest {
         byte[] uefiFwBlobBytes = HexUtils.hexStringToByteArray(uefiTxt);
         UefiDevicePath uefiDevPath = new UefiDevicePath(uefiFwBlobBytes);
         String devPathType = uefiDevPath.getType();
-        String devPathSubType = uefiDevPath.getSubType();
         Assert.assertEquals(devPathType, "Media Device Path");
     }
 }

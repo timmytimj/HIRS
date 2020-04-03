@@ -18,9 +18,11 @@ import java.nio.file.Path;
  * A utility class for common JSON operations using the {@link com.eclipsesource}
  * library.
  */
-public class JsonUtils {
+public final class JsonUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonUtils.class);
+
+    private JsonUtils() { }
 
     /**
      * Getter for the JSON Object that is associated with the elementName value
@@ -64,7 +66,7 @@ public class JsonUtils {
      * Default {@link java.nio.charset.Charset} is UTF 8
      *
      * @param jsonPath the object holding the location of the file to parse.
-     * @return
+     * @return a JSON object
      */
     public static JsonObject getJsonObject(final Path jsonPath) {
         return getJsonObject(jsonPath, StandardCharsets.UTF_8);
@@ -75,9 +77,9 @@ public class JsonUtils {
      *
      * @param jsonPath the object holding the location of the file to parse.
      * @param charset the character set to use
-     * @returna JSON object
+     * @return a JSON object
      */
-    public static JsonObject getJsonObject(final Path jsonPath, Charset charset) {
+    public static JsonObject getJsonObject(final Path jsonPath, final Charset charset) {
         // find the file and load it
         JsonObject jsonObject = new JsonObject();
 
