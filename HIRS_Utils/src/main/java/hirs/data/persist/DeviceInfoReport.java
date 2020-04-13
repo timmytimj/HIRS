@@ -208,6 +208,9 @@ public class DeviceInfoReport extends Report implements Serializable {
      * @return tpmInfo, may be null if a TPM is not available on the device
      */
     public final TPMInfo getTPMInfo() {
+        if (tpmInfo == null) {
+            tpmInfo = new TPMInfo();
+        }
         return tpmInfo;
     }
 
@@ -285,6 +288,10 @@ public class DeviceInfoReport extends Report implements Serializable {
     }
 
     private void setTPMInfo(TPMInfo tpmInfo) {
+        if (tpmInfo == null) {
+            LOGGER.error("TPMInfo cannot be null");
+            throw new NullPointerException("TPM Info");
+        }
         this.tpmInfo = tpmInfo;
     }
 

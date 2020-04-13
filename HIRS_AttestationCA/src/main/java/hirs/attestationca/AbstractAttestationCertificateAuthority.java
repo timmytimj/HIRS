@@ -655,9 +655,13 @@ public abstract class AbstractAttestationCertificateAuthority
                 hwProto.getProductVersion(), hwProto.getSystemSerialNumber(),
                 firstChassisSerialNumber, firstBaseboardSerialNumber);
 
-
         // Get TPM info, currently unimplemented
-        TPMInfo tpm = new TPMInfo();
+        ProvisionerTpm2.TpmInfo tpmProto = dv.getTpm();
+        TPMInfo tpm = new TPMInfo(tpmProto.getTpmMake(),
+                Short.valueOf(tpmProto.getTpmVersionMajor()),
+                Short.valueOf(tpmProto.getTpmVersionMinor()),
+                Short.valueOf(tpmProto.getTpmRevMajor()),
+                Short.valueOf(tpmProto.getTpmRevMinor()));
 
         // Create final report
         DeviceInfoReport dvReport = new DeviceInfoReport(nw, os, fw, hw, tpm,

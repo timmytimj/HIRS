@@ -57,6 +57,7 @@ message DeviceInfo {
   required HardwareInfo hw = 2;
   required NetworkInfo nw = 3;
   required OsInfo os = 4;
+  required TpmInfo tpm = 5;
 }
 
 message IdentityClaim {

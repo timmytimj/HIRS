@@ -33,6 +33,8 @@ class DeviceInfoCollector {
 
     static hirs::pb::OsInfo collectOsInfo();
 
+    static hirs::pb::TpmInfo collectTpmInfo();
+
  public:
     /**
      * Collect all device info from the system and return it in a filled out

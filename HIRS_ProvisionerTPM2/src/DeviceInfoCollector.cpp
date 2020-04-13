@@ -40,6 +40,7 @@ hirs::pb::DeviceInfo DeviceInfoCollector::collectDeviceInfo() {
     dv.mutable_hw()->CopyFrom(collectHardwareInfo());
     dv.mutable_nw()->CopyFrom(collectNetworkInfo());
     dv.mutable_os()->CopyFrom(collectOsInfo());
+    dv.mutable_tpm()->CopyFrom(collectTpmInfo());
     return dv;
 }
 
@@ -58,6 +59,25 @@ hirs::pb::FirmwareInfo DeviceInfoCollector::collectFirmwareInfo() {
     LOGGER.info("Bios Date: " + fw.biosreleasedate());
 
     return fw;
+}
+
+hirs::pb::TpmInfo DeviceInfoCollector::collectTpmInfo() {
+    hirs::pb::TpmInfo tpm;
+
+    // TODO(cyrus): command line tpm_version for 2.0, pull spec version.
+    // tpm_version | grep Vendor
+    tpm.set_tpmmake(trimNewLines("IFX"));
+    // tpm_version | grep Chip
+    tpm.set_tpmversionmajor(trimNewLines("2"));
+    tpm.set_tpmversionminor(trimNewLines("0"));
+    tpm.set_tpmrevmajor(trimNewLines("3"));
+    tpm.set_tpmrevminor(trimNewLines("19"));
+
+    LOGGER.info("TPM Make: " + tpm.tpmmake());
+    LOGGER.info("TPM Version (Major): " + tpm.tpmversionmajor());
+    LOGGER.info("TPM Version (Minor): " + tpm.tpmversionminor());
+    LOGGER.info("TPM Revision (Major): " + tpm.tpmrevmajor());
+    LOGGER.info("TPM Revision (Minor): " + tpm.tpmrevminor());
 }
 
 hirs::pb::HardwareInfo DeviceInfoCollector::collectHardwareInfo() {
