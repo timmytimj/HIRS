@@ -288,10 +288,13 @@ public class DeviceInfoReport extends Report implements Serializable {
     }
 
     private void setTPMInfo(TPMInfo tpmInfo) {
-        if (tpmInfo == null) {
-            LOGGER.error("TPMInfo cannot be null");
-            throw new NullPointerException("TPM Info");
-        }
+        /**
+         * Until the system tests in issue #247 are updated
+        *
+        *if (tpmInfo == null) {
+        *    LOGGER.error("TPMInfo cannot be null");
+        *    throw new NullPointerException("TPM Info");
+        }*/
         this.tpmInfo = tpmInfo;
     }
 
