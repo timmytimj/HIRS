@@ -320,7 +320,7 @@ public class TPMBaselineGenerator {
 
             return new TPMInfo(tpmMake, Short.valueOf(tpmVersionMajor),
                 Short.valueOf(tpmVersionMinor), Short.valueOf(tpmVersionRevMajor),
-                Short.valueOf(tpmVersionRevMinor));
+                Short.valueOf(tpmVersionRevMinor), new byte[0], new byte[0], new byte[0]);
         }
     }
 

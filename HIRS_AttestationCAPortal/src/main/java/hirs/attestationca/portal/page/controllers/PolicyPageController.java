@@ -227,10 +227,14 @@ public class PolicyPageController extends PageController<NoPageParams> {
             //If PC Validation is enabled without EC Validation, disallow change
             if (!isPolicyValid(ecValidationOptionEnabled, policy.isPcValidationEnabled(),
                     policy.isPcAttributeValidationEnabled())) {
-                handleUserError(model, messages,
-                        "To disable Endorsement Credential Validation, Platform Validation"
-                        + " must also be disabled.");
-                return redirectToSelf(new NoPageParams(), model, attr);
+                policy.setPcValidationEnabled(false);
+                policy.setPcAttributeValidationEnabled(false);
+                policy.setEcValidationEnabled(false);
+                policy.setFirmwareValidationEnabled(false);
+//                handleUserError(model, messages,
+//                        "To disable Endorsement Credential Validation, Platform Validation"
+//                        + " must also be disabled.");
+//                return redirectToSelf(new NoPageParams(), model, attr);
             }
             // set the policy option and create success message
             if (ecValidationOptionEnabled) {
@@ -280,10 +284,13 @@ public class PolicyPageController extends PageController<NoPageParams> {
 
             //If firmware is enabled without PC attributes, disallow change
             if (firmwareValidationOptionEnabled && !policy.isPcAttributeValidationEnabled()) {
-                handleUserError(model, messages,
-                        "Firmware validation can not be "
-                        + "enabled without PC Attributes policy enabled.");
-                return redirectToSelf(new NoPageParams(), model, attr);
+//                handleUserError(model, messages,
+//                        "Firmware validation can not be "
+//                        + "enabled without PC Attributes policy enabled.");
+//                return redirectToSelf(new NoPageParams(), model, attr);
+                policy.setEcValidationEnabled(true);
+                policy.setPcValidationEnabled(true);
+                policy.setPcAttributeValidationEnabled(true);
             }
 
             // set the policy option and create success message

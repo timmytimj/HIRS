@@ -340,7 +340,8 @@ public class DeviceInfoCollector extends AbstractCollector {
             throw new CollectorException("tpm info incorrectly parsed");
         }
         return new TPMInfo(tpmMake, tpmVersionMajor, tpmVersionMinor,
-                tpmVersionRevMajor, tpmVersionRevMinor, clientCredential);
+                tpmVersionRevMajor, tpmVersionRevMinor, clientCredential,
+                new byte[0], new byte[0], new byte[0]);
     }
 
     /**

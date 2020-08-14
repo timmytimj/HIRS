@@ -1,5 +1,6 @@
 package hirs.data.persist;
 
+import org.apache.commons.codec.DecoderException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -63,7 +64,7 @@ public class PCRPolicyTest {
      * Test of testValidatePcrsPass method, of class PCRPolicy.
      */
     @Test
-    public void testValidatePcrsPass() {
+    public void testValidatePcrsPass() throws DecoderException {
         PCRPolicy instance = new PCRPolicy(BASELINE_PCRS);
         instance.setEnableIgnoreIma(false);
         instance.setEnableIgnoretBoot(false);
@@ -75,7 +76,7 @@ public class PCRPolicyTest {
      * Test of testValidatePcrsFail method, of class PCRPolicy.
      */
     @Test
-    public void testValidatePcrsFail() {
+    public void testValidatePcrsFail() throws DecoderException {
         PCRPolicy instance = new PCRPolicy(BASELINE_PCRS);
         instance.setEnableIgnoreIma(false);
         instance.setEnableIgnoretBoot(false);
@@ -87,7 +88,7 @@ public class PCRPolicyTest {
      * Test of testValidatePcrsFailIgnoreIma method, of class PCRPolicy.
      */
     @Test
-    public void testValidatePcrsFailIgnoreIma() {
+    public void testValidatePcrsFailIgnoreIma() throws DecoderException {
         PCRPolicy instance = new PCRPolicy(BASELINE_PCRS);
         instance.setEnableIgnoreIma(true);
         instance.setEnableIgnoretBoot(false);
@@ -99,7 +100,7 @@ public class PCRPolicyTest {
      * Test of testValidatePcrsFailIgnoreTBoot method, of class PCRPolicy.
      */
     @Test
-    public void testValidatePcrsFailIgnoreTBoot() {
+    public void testValidatePcrsFailIgnoreTBoot() throws DecoderException {
         PCRPolicy instance = new PCRPolicy(BASELINE_PCRS);
         instance.setEnableIgnoreIma(false);
         instance.setEnableIgnoretBoot(true);
@@ -111,7 +112,7 @@ public class PCRPolicyTest {
      * Test of testValidatePcrsPassIgnoreImaAndTBoot method, of class PCRPolicy.
      */
     @Test
-    public void testValidatePcrsPassIgnoreImaAndTBoot() {
+    public void testValidatePcrsPassIgnoreImaAndTBoot() throws DecoderException {
         PCRPolicy instance = new PCRPolicy(BASELINE_PCRS);
         instance.setEnableIgnoreIma(true);
         instance.setEnableIgnoretBoot(true);

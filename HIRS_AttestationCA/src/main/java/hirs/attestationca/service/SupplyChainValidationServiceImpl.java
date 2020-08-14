@@ -1,9 +1,6 @@
 package hirs.attestationca.service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -40,7 +37,6 @@ import hirs.data.persist.certificate.Certificate;
 import hirs.data.persist.certificate.CertificateAuthorityCredential;
 import hirs.data.persist.certificate.EndorsementCredential;
 import hirs.data.persist.certificate.PlatformCredential;
-import hirs.data.persist.certificate.IssuedAttestationCertificate;
 import hirs.data.persist.ReferenceManifest;
 import hirs.persist.AppraiserManager;
 import hirs.persist.CertificateManager;
@@ -128,6 +124,7 @@ public class SupplyChainValidationServiceImpl implements SupplyChainValidationSe
         Map<PlatformCredential, SupplyChainValidation> deltaMapping = new HashMap<>();
         SupplyChainValidation platformScv = null;
 
+        LOGGER.info("Validating supply chain.");
         // Validate the Endorsement Credential
         if (policy.isEcValidationEnabled()) {
             validations.add(validateEndorsementCredential(ec, acceptExpiredCerts));
@@ -261,6 +258,69 @@ public class SupplyChainValidationServiceImpl implements SupplyChainValidationSe
     }
 
     /**
+     * A supplemental method that handles validating just the quote post main validation.
+     *
+     * @param device the associated device.
+     * @return True if validation is successful, false otherwise.
+     */
+    @Override
+    public SupplyChainValidation validateQuote(final Device device) {
+        final Appraiser supplyChainAppraiser = appraiserManager.getAppraiser(
+                SupplyChainAppraiser.NAME);
+        SupplyChainPolicy policy = (SupplyChainPolicy) policyManager.getDefaultPolicy(
+                supplyChainAppraiser);
+        SupplyChainValidation quoteScv = null;
+        SupplyChainValidationSummary summary = supplyChainValidatorSummaryManager.get(device.getId());
+        Level level = Level.ERROR;
+        AppraisalStatus fwStatus = new AppraisalStatus(FAIL,
+                SupplyChainCredentialValidator.FIRMWARE_VALID);
+
+        // If the device already failed, then ignore
+        if (summary.getOverallValidationResult() == PASS) {
+            // check if the policy is enabled
+            if (policy.isFirmwareValidationEnabled()) {
+                String[] baseline = new String[Integer.SIZE];
+                String manufacturer = device.getDeviceInfo()
+                        .getHardwareInfo().getManufacturer();
+
+                // need to get pcrs
+                ReferenceManifest rim = ReferenceManifest.select(
+                        this.referenceManifestManager)
+                        .byManufacturer(manufacturer)
+                        .getRIM();
+
+                if (rim == null) {
+                    fwStatus = new AppraisalStatus(FAIL,
+                            String.format("Firmware Quote validation failed: "
+                                            + "No associated RIM file could be found for %s",
+                                    manufacturer));
+                } else {
+                    List<SwidResource> swids = rim.parseResource();
+                    for (SwidResource swid : swids) {
+                        baseline = swid.getPcrValues()
+                                .toArray(new String[swid.getPcrValues().size()]);
+                    }
+
+                    PCRPolicy pcrPolicy = policy.getPcrPolicy();
+
+                    pcrPolicy.setBaselinePcrs(baseline);
+                    // grab the quote
+                    byte[] hash = device.getDeviceInfo().getTPMInfo().getTpmQuoteHash();
+                    byte[] signature = device.getDeviceInfo().getTPMInfo().getTpmQuoteHash();
+
+                    if (!pcrPolicy.validateQuote(hash)) {
+                        quoteScv = buildValidationRecord(SupplyChainValidation.ValidationType.FIRMWARE,
+                                fwStatus.getAppStatus(),
+                                "Firmware validation of TPM Quote failed.", rim, level);
+                    }
+                }
+            }
+        }
+
+        return quoteScv;
+    }
+
+    /**
      * This method is a sub set of the validate supply chain method and focuses
      * on the specific multibase validation check for a delta chain. This method
      * also includes the check for delta certificate CA validation as well.
@@ -325,9 +385,6 @@ public class SupplyChainValidationServiceImpl implements SupplyChainValidationSe
         String manufacturer = device.getDeviceInfo()
                 .getHardwareInfo().getManufacturer();
 
-        IssuedAttestationCertificate attCert = IssuedAttestationCertificate
-                .select(this.certificateManager)
-                .byDeviceId(device.getId()).getCertificate();
         ReferenceManifest rim = ReferenceManifest.select(
                 this.referenceManifestManager)
                 .byManufacturer(manufacturer)
@@ -348,18 +405,15 @@ public class SupplyChainValidationServiceImpl implements SupplyChainValidationSe
             }
             pcrPolicy.setBaselinePcrs(baseline);
 
-            if (attCert != null) {
-                Path pcrPath = Paths.get(attCert.getPcrValues());
+            if (device != null) {
                 String pcrContent = "";
-                if (Files.exists(pcrPath)) {
-                    try {
-                        pcrContent = new String(Files.readAllBytes(pcrPath), "UTF8");
-                    } catch (IOException ioEx) {
-                        LOGGER.error(ioEx);
-                    }
+                try {
+                    pcrContent = new String(device.getDeviceInfo().getTPMInfo().getPcrValues());
+                } catch (NullPointerException npEx) {
+                    LOGGER.error(npEx);
                 }
                 String[] pcrSet = null;
-                String[] quote = null;
+                String[] storedPcrs = null;
                 int algorithmLength = baseline[0].length();
 
                 if (pcrContent.isEmpty()) {
@@ -368,11 +422,11 @@ public class SupplyChainValidationServiceImpl implements SupplyChainValidationSe
                                     + "provide pcr values.");
                     LOGGER.warn(String.format(
                             "Firmware validation failed: Client (%s) did not "
-                                    + "provide pcr values.", attCert.getDevice().getName()));
+                                    + "provide pcr values.", device.getName()));
                 } else {
                     // we have a full set of PCR values
                     pcrSet = pcrContent.split("\\n");
-                    quote = new String[TPMMeasurementRecord.MAX_PCR_ID + 1];
+                    storedPcrs = new String[TPMMeasurementRecord.MAX_PCR_ID + 1];
 
                     // we need to scroll through the entire list until we find
                     // a matching hash length
@@ -385,14 +439,14 @@ public class SupplyChainValidationServiceImpl implements SupplyChainValidationSe
                                     == algorithmLength) {
                                 // found the matching set
                                 for (int j = 0; j <= TPMMeasurementRecord.MAX_PCR_ID; j++) {
-                                    quote[j] = pcrSet[++i].split(":")[1].trim();
+                                    storedPcrs[j] = pcrSet[++i].split(":")[1].trim();
                                 }
                                 break;
                             }
                         }
                     }
 
-                    if (quote[0].isEmpty()) {
+                    if (storedPcrs[0].isEmpty()) {
                         // validation fail
                         fwStatus = new AppraisalStatus(FAIL,
                                 "Firmware validation failed: "
@@ -400,7 +454,7 @@ public class SupplyChainValidationServiceImpl implements SupplyChainValidationSe
                                         + "values are not the same algorithm "
                                         + "as associated RIM.");
                     } else {
-                        StringBuilder sb = pcrPolicy.validatePcrs(quote);
+                        StringBuilder sb = pcrPolicy.validatePcrs(storedPcrs);
                         if (sb.length() > 0) {
                             level = Level.ERROR;
                             fwStatus = new AppraisalStatus(FAIL, sb.toString());

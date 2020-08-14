@@ -2,6 +2,7 @@ package hirs.attestationca.service;
 
 import java.util.Set;
 import hirs.data.persist.Device;
+import hirs.data.persist.SupplyChainValidation;
 import hirs.data.persist.SupplyChainValidationSummary;
 import hirs.data.persist.certificate.EndorsementCredential;
 import hirs.data.persist.certificate.PlatformCredential;
@@ -25,4 +26,12 @@ public interface SupplyChainValidationService {
     SupplyChainValidationSummary validateSupplyChain(EndorsementCredential ec,
                                                      Set<PlatformCredential> pc,
                                                      Device device);
+
+    /**
+     * A supplemental method that handles validating just the quote post main validation.
+     *
+     * @param device the associated device.
+     * @return True if validation is successful, false otherwise.
+     */
+    SupplyChainValidation validateQuote(Device device);
 }

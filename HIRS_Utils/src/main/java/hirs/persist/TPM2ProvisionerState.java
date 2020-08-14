@@ -21,6 +21,7 @@ public class TPM2ProvisionerState {
     private static final int MAX_BLOB_SIZE = 65535;
 
     @Id
+    @Column(nullable = false)
     private Long firstPartOfNonce;
 
     @Column(nullable = false)

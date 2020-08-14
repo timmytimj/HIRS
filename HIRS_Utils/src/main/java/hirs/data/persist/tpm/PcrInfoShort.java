@@ -80,6 +80,24 @@ public class PcrInfoShort {
     }
 
     /**
+     * Constructor used to create a PcrInfoShort object.  Uses default
+     * PcrSelection object with all PCRs selected.
+     *
+     * @param localityAtRelease
+     *            short value includes locality information to provide the
+     *            requestor a more complete view of the current platform
+     *            configuration
+     * @param compositeHash
+     *            A hash of PcrComposite
+     * @param pcrComposite
+     *            A structure containing the actual values of the PCRs quoted.
+     */
+    public PcrInfoShort(final short localityAtRelease, final byte[] compositeHash,
+                        final PcrComposite pcrComposite) {
+        this(new PcrSelection(), localityAtRelease, compositeHash, pcrComposite);
+    }
+
+    /**
      * Constructor used to create a PcrInfoShort object.
      *
      * @param pcrSelection

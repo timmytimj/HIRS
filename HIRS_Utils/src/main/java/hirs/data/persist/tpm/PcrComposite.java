@@ -72,6 +72,17 @@ public class PcrComposite {
     }
 
     /**
+     * Constructor used to create a PcrComposite object.  Uses default
+     *      * PcrSelection object with all PCRs selected.
+     *
+     * @param pcrValueList
+     *            List of TPMMeasurementRecords representing the PCR values
+     */
+    public PcrComposite(final List<TPMMeasurementRecord> pcrValueList) {
+        this(new PcrSelection(), pcrValueList);
+    }
+
+    /**
      * Constructor used to create a PcrComposite object.
      *
      * @param pcrSelection
@@ -115,7 +126,7 @@ public class PcrComposite {
     @XmlElement(name = "ValueSize", required = true)
     public final int getValueSize() {
         int valueSize = 0;
-        for (TPMMeasurementRecord record: this.pcrValueList) {
+        for (TPMMeasurementRecord record : this.pcrValueList) {
             valueSize += record.getHash().getDigest().length;
         }
         return valueSize;
