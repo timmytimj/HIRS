@@ -1,4 +1,4 @@
-package hirs.attestationca.portal.page.controllers;
+ package hirs.attestationca.portal.page.controllers;
 
 import hirs.data.persist.ReferenceManifest;
 import hirs.data.persist.SwidResource;
@@ -159,6 +159,9 @@ public class ReferenceManifestDetailsPageController
             List<SwidResource> resources = rim.parseResource();
             String resourceFilename = null;
             TCGEventLog logProcessor;
+
+            data.put("signatureValid", rim.isSignatureValid());
+            data.put("fileHashValid", rim.isPayloadFileValid());
 
             try {
                 for (SwidResource swidRes : resources) {

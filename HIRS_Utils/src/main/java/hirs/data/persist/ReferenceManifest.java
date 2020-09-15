@@ -18,13 +18,16 @@ import com.google.common.base.Preconditions;
 import hirs.persist.DBReferenceManifestManager;
 import hirs.persist.ReferenceManifestManager;
 import hirs.persist.ReferenceManifestSelector;
-import hirs.utils.xjc.BaseElement;
-import hirs.utils.xjc.ResourceCollection;
-import hirs.utils.xjc.SoftwareIdentity;
-import hirs.utils.xjc.SoftwareMeta;
-import hirs.utils.xjc.Meta;
-import hirs.utils.xjc.Directory;
-import hirs.utils.xjc.FilesystemItem;
+import hirs.swid.SwidTagValidator;
+import hirs.swid.xjc.BaseElement;
+import hirs.swid.xjc.ResourceCollection;
+import hirs.swid.xjc.SoftwareIdentity;
+import hirs.swid.xjc.SoftwareMeta;
+import hirs.swid.xjc.Meta;
+import hirs.swid.xjc.Directory;
+import hirs.swid.xjc.FilesystemItem;
+import hirs.swid.xjc.File;
+import hirs.swid.xjc.Link;
 import java.io.InputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,7 +69,7 @@ public class ReferenceManifest extends ArchivableEntity {
     /**
      * String for the package location of the xml generated java files.
      */
-    public static final String SCHEMA_PACKAGE = "hirs.utils.xjc";
+    public static final String SCHEMA_PACKAGE = "hirs.swid.xjc";
 
     private static final Logger LOGGER = LogManager.getLogger(ReferenceManifest.class);
     private static JAXBContext jaxbContext;
@@ -144,6 +147,8 @@ public class ReferenceManifest extends ArchivableEntity {
     @Column(columnDefinition = "blob", nullable = false)
     @JsonIgnore
     private byte[] rimBytes;
+    private boolean payloadFileValid;
+    private boolean signatureValid;
     /**
      * Holds the name of the 'rimHash' field.
      */
@@ -223,7 +228,11 @@ public class ReferenceManifest extends ArchivableEntity {
 
         this.rimBytes = rimBytes.clone();
 
-        SoftwareIdentity si = validateSwidTag(new ByteArrayInputStream(rimBytes));
+        SwidTagValidator validator = new SwidTagValidator();
+        validator.validateSwidtagInputStream(new ByteArrayInputStream(rimBytes));
+        SoftwareIdentity si = validator.getSoftwareIdentity();
+        payloadFileValid = validator.isPayloadFileValid();
+        signatureValid = validator.isSignatureValid();
 
         // begin parsing valid swid tag
         if (si != null) {
@@ -243,8 +252,8 @@ public class ReferenceManifest extends ArchivableEntity {
                             parseSoftwareMeta((SoftwareMeta) element.getValue());
                             break;
                         case "Entity":
-                            hirs.utils.xjc.Entity entity
-                                    = (hirs.utils.xjc.Entity) element.getValue();
+                            hirs.swid.xjc.Entity entity
+                                    = (hirs.swid.xjc.Entity) element.getValue();
                             if (entity != null) {
                                 this.entityName = entity.getName();
                                 this.entityRegId = entity.getRegid();
@@ -257,8 +266,7 @@ public class ReferenceManifest extends ArchivableEntity {
                             }
                             break;
                         case "Link":
-                            hirs.utils.xjc.Link link
-                                    = (hirs.utils.xjc.Link) element.getValue();
+                            Link link = (Link) element.getValue();
                             if (link != null) {
                                 this.linkHref = link.getHref();
                                 this.linkRel = link.getRel();
@@ -279,24 +287,6 @@ public class ReferenceManifest extends ArchivableEntity {
     }
 
     /**
-     * This method and code is pulled and adopted from the TCG Tool. Since this
-     * is taking in an file stored in memory through http, this was changed from
-     * a file to a stream as the input.
-     *
-     * @param fileStream stream of the swidtag file.
-     * @return a {@link SoftwareIdentity} object
-     * @throws IOException Thrown by the unmarhsallSwidTag method.
-     */
-    private SoftwareIdentity validateSwidTag(final InputStream fileStream) throws IOException {
-        JAXBElement jaxbe = unmarshallSwidTag(fileStream);
-        SoftwareIdentity swidTag = (SoftwareIdentity) jaxbe.getValue();
-
-        LOGGER.info(String.format("SWID Tag found: %nname: %s;%ntagId:  %s%n%s",
-                swidTag.getName(), swidTag.getTagId(), SCHEMA_STATEMENT));
-        return swidTag;
-    }
-
-    /**
      * Helper method that is used to parse a specific element of the SwidTag
      * based on an already established and stored byte array.
      *
@@ -308,7 +298,9 @@ public class ReferenceManifest extends ArchivableEntity {
 
         if (rimBytes != null && elementName != null) {
             try {
-                SoftwareIdentity si = validateSwidTag(new ByteArrayInputStream(this.rimBytes));
+                SwidTagValidator validator = new SwidTagValidator();
+                validator.validateSwidtagInputStream(new ByteArrayInputStream(this.rimBytes));
+                SoftwareIdentity si = validator.getSoftwareIdentity();
                 JAXBElement element;
                 for (Object object : si.getEntityOrEvidenceOrLink()) {
                     if (object instanceof JAXBElement) {
@@ -414,11 +406,11 @@ public class ReferenceManifest extends ArchivableEntity {
                             for (FilesystemItem fsi : directory.getDirectoryOrFile()) {
                                 if (fsi != null) {
                                     resources.add(new SwidResource(
-                                            (hirs.utils.xjc.File) fsi, null));
+                                            (File) fsi, null));
                                 }
                             }
-                        } else if (meta instanceof hirs.utils.xjc.File) {
-                            resources.add(new SwidResource((hirs.utils.xjc.File) meta, null));
+                        } else if (meta instanceof File) {
+                            resources.add(new SwidResource((File) meta, null));
                         }
                     }
                 }
@@ -993,6 +985,41 @@ public class ReferenceManifest extends ArchivableEntity {
      */
     public void setPcURILocal(final String pcURILocal) {
         this.pcURILocal = pcURILocal;
+    }
+
+    /**
+     * Getter for payloadFileValid.
+     *
+     * @return payloadFileValid boolean
+     */
+    public boolean isPayloadFileValid() {
+        return payloadFileValid;
+    }
+
+    /**
+     * Setter for payloadFileValid.
+     *
+     * @param payloadFileValid in boolean representation
+     */
+    public void setPayloadFileValid(final boolean payloadFileValid) {
+        this.payloadFileValid = payloadFileValid;
+    }
+
+    /**
+     * Getter for signatureValid.
+     *
+     * @return signatureValid boolean
+     */
+    public boolean isSignatureValid() {
+        return signatureValid;
+    }
+
+    /**
+     * Setter for signatureValid.
+     * @param signatureValid in boolean representation
+     */
+    public void setSignatureValid(final boolean signatureValid) {
+        this.signatureValid = signatureValid;
     }
 
     @Override
